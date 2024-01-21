@@ -396,3 +396,20 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+
+# Existing Skua Army files
+ArmyFarm/
+ArmyHollowBorn/
+ArmyLegion/
+ArmyMerge/
+ArmyNulgath/
+ArmySeasonal/
+Classes/
+Generated/
+OneClient/
+Quests/
+Templates/
+Various/
+/0AggromonReader.cs
+/0CustomAggroMon.cs
+/CoreArmyLite.cs
