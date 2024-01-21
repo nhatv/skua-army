@@ -9,6 +9,9 @@ tags: null
 //cs_include Scripts/CoreAdvanced.cs
 //cs_include Scripts/Army/CoreArmyLite.cs
 using Skua.Core.Interfaces;
+using Skua.Core.Models.Items;
+using Skua.Core.Models.Quests;
+using Skua.Core.Options;
 
 public class CoreUltra
 {
@@ -19,15 +22,24 @@ public class CoreUltra
     private CoreArmyLite Army = new();
     private static CoreArmyLite sArmy = new();
 
-    public string OptionsStorage = "Ultra";
-    public bool DontPreconfigure = true;
-
     public void ScriptMain(IScriptInterface bot)
     {
         Core.RunCore();
     }
 
-    // revitalize
+    /// <summary>
+    /// Roundabout way of using revitalize elixir. Use after equipping class or the buff will disappear
+    /// </summary>
+    public void UseRevitalize()
+    {
+        Bot.Options.AttackWithoutTarget = true;
+        Core.Join("lair-999999");
+        Core.Equip(new[]{ "Felicitous Philtre", "Potent Revitalize Elixir" });
+        Bot.Skills.StartAdvanced("5");
+        while (!Bot.Self.HasActiveAura("Potent Revitalize Elixir"))
+            Bot.Combat.Attack("*");
 
+        Bot.Options.AttackWithoutTarget = false;
+    }
 
 }
