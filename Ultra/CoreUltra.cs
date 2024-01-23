@@ -28,18 +28,19 @@ public class CoreUltra
     }
 
     /// <summary>
-    /// Roundabout way of using revitalize elixir. Use after equipping class or the buff will disappear
+    /// Roundabout way of using revitalize elixir. Use after equipping class or all auras will disappear
     /// </summary>
     public void UseRevitalize()
     {
-        Bot.Options.AttackWithoutTarget = true;
-        Core.Join("lair-999999");
-        Core.Equip(new[]{ "Felicitous Philtre", "Potent Revitalize Elixir" });
-        Bot.Skills.StartAdvanced("5");
-        while (!Bot.Self.HasActiveAura("Potent Revitalize Elixir"))
+        if (!Core.CheckInventory("Scroll of Enrage") && !Core.CheckInventory("Potent Revitalize Elixir"))
+            return;
+        Core.Join("battleontown-999999");
+        Core.Equip(new[]{ "Scroll of Enrage", "Potent Revitalize Elixir" });
+        do
+        {
             Bot.Combat.Attack("*");
-
-        Bot.Options.AttackWithoutTarget = false;
+            Bot.Skills.UseSkill(5);
+        } while (!Bot.ShouldExit && !Bot.Self.HasActiveAura("Potent Revitalize Elixir"));
     }
 
 }
