@@ -44,3 +44,10 @@ public class CoreUltra
     }
 
 }
+
+public enum CompOptions
+{
+    LrLooApSc,
+    LrLooApCav,
+    LrLooApDt
+}

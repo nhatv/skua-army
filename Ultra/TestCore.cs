@@ -30,6 +30,7 @@ public class TestCore
     public bool DontPreconfigure = true;
     public List<IOption> Options = new List<IOption>()
     {
+        new Option<CompOptions>("Comp", "Team Composition", "Select your team composition", CompOptions.LrLooApSc),
         sArmy.player1,
         sArmy.player2,
         sArmy.player3,
