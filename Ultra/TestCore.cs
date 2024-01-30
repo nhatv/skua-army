@@ -30,7 +30,7 @@ public class TestCore
     public bool DontPreconfigure = true;
     public List<IOption> Options = new List<IOption>()
     {
-        new Option<CompOptions>("Comp", "Team Composition", "Select your team composition", CompOptions.LrLooApSc),
+        new Option<CompOptions>("Comp", "Team Composition", "Select your team composition", CompOptions.LrApLooSc),
         sArmy.player1,
         sArmy.player2,
         sArmy.player3,
@@ -41,8 +41,8 @@ public class TestCore
 
     public void ScriptMain(IScriptInterface bot)
     {
-        //Core.SetOptions(disableClassSwap: true);
-        Core.SetOptions();
+        Core.SetOptions(disableClassSwap: true);
+        // Core.SetOptions();
 
         Test();
 
@@ -60,6 +60,7 @@ public class TestCore
         if (Bot.Flash.GetGameObject<bool>("ui.monsterIcon.redX.visible"))
             Bot.Flash.CallGameFunction("world.toggleMonsters");
             
-        Ultra.UseRevitalize();
+        Core.Logger($"weap id: {Adv.CurrentWeaponSpecial()}");
+        // Ultra.UseRevitalize();
     }
 }

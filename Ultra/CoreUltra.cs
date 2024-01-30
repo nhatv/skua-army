@@ -43,11 +43,21 @@ public class CoreUltra
         } while (!Bot.ShouldExit && !Bot.Self.HasActiveAura("Potent Revitalize Elixir"));
     }
 
+    /// <summary>
+    /// Finds and equips healer gear for the Dragon of Time class 
+    /// </summary>
+    public void EquipDTGear()
+    {
+        
+    }
+
 }
 
 public enum CompOptions
 {
-    LrLooApSc,
-    LrLooApCav,
-    LrLooApDt
-}
+    LrApLooSc,
+    LrApLooCav,
+    LrApLooDt,
+    LrLcLooVhl,
+    VhlApLooSc,
+};
