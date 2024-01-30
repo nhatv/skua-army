@@ -27,15 +27,16 @@ public class ChampionDrakath
     public bool DontPreconfigure = true;
     public List<IOption> Options = new List<IOption>()
     {
-        new Option<int>("threshold", "HP Threshold", "Enter HP threshold to taunt (Default: 300000)", 300000),
+        new Option<int>("threshold", "HP Threshold", "Enter HP threshold to taunt, value is halved < 10 mil HP (Default: 300000)", 300000),
+        new Option<bool>("spamPot", "Spam Felicitous Philtre?", "Yes(True) / No(False)", true),
         sArmy.player1,
-        new Option<string>("player1class", "Account #1 Class", "Enter the name of class to equip.", "Legion Revenant"),
+        new Option<string>("player1Class", "Account #1 Class", "Enter the name of class to equip.", "Void Highlord"),
         sArmy.player2,
-        new Option<string>("player2class", "Account #2 Class", "Enter the name of class to equip.", "ArchPaladin"),
+        new Option<string>("player2Class", "Account #2 Class", "Enter the name of class to equip.", "ArchPaladin"),
         sArmy.player3,
-        new Option<string>("player3class", "Account #3 Class", "Enter the name of class to equip.", "Lord of Order"),
+        new Option<string>("player3Class", "Account #3 Class", "Enter the name of class to equip.", "Lord of Order"),
         sArmy.player4,
-        new Option<string>("player4class", "Account #4 Class", "Enter the name of class to equip.", "StoneCrusher"),
+        new Option<string>("player4Class", "Account #4 Class", "Enter the name of class to equip.", "StoneCrusher"),
         sArmy.packetDelay,
         CoreBots.Instance.SkipOptions
     };
@@ -44,11 +45,6 @@ public class ChampionDrakath
     {
         //Core.SetOptions(disableClassSwap: true);
         Core.SetOptions();
-
-        // Turn off antilag
-        // Bot.Options.LagKiller = false;
-        // Bot.Flash.SetGameObject("stage.frameRate", 30);
-        // Bot.Flash.CallGameFunction("world.toggleMonsters");
 
         DoWeekly();
 
@@ -68,11 +64,42 @@ public class ChampionDrakath
         if (Bot.Flash.GetGameObject<bool>("ui.monsterIcon.redX.visible"))
             Bot.Flash.CallGameFunction("world.toggleMonsters");
 
-    string[] players = Army.Players();
+        string[] players = Army.Players();
+        if (Bot.Player.Username == players[0])
+        {
+            Core.Equip(Bot.Config.Get<string>("player1Class"));
+            Core.Equip("Potent Revitalize Elixir");
+            Core.Equip("Scroll of Enrage");
+            if (Bot.Player.CurrentClass.Name == "Void Highlord")
+                Bot.Skills.StartAdvanced("Void Highlord", true, ClassUseMode.Atk);
+            else
+                Bot.Skills.StartAdvanced(Bot.Player.CurrentClass?.Name ?? "generic", false);
+        } 
+        else if (Bot.Player.Username == players[1])
+        {
+            Core.Equip(Bot.Config.Get<string>("player2Class"));
+            Core.Equip("Potent Revitalize Elixir");
+            Core.Equip("Felicitous Philtre");
+            // Bot.Skills.StartAdvanced("5S | 3 | 1 | 2");
+            Bot.Skills.StartAdvanced("3 | 1 | 2 | 1 | 2 | 4 | 1", 250, SkillUseMode.WaitForCooldown);
+        } 
+        else if (Bot.Player.Username == players[2])
+        {
+            Core.Equip(Bot.Config.Get<string>("player3Class"));
+            Core.Equip("Potent Revitalize Elixir");
+            Core.Equip("Felicitous Philtre");
+            Bot.Skills.StartAdvanced("2 | 4 | 1 | 3");
+        }
+        else if (Bot.Player.Username == players[3])
+        {
+            Core.Equip(Bot.Config.Get<string>("player4Class"));
+            Core.Equip("Potent Revitalize Elixir");
+            Core.Equip("Felicitous Philtre");
+            Bot.Skills.StartAdvanced("2 | 3 | 1 | 4");
+        }
 
-        Core.Join("championdrakath", "r2", "Left");
         Core.EnsureAccept(8300);
-        Army.waitForParty("championdrakath");
+        Core.Join("championdrakath", "r2", "Left");
 
         Monster? monster = Bot.Monsters.CurrentMonsters?.Find(m => m.MapID == 1);
         if (monster == null)
@@ -80,20 +107,21 @@ public class ChampionDrakath
             Core.Logger($"Monster not found. Something is wrong. Stopping bot", messageBox: true, stopBot: true);
             return;
         }
+        Core.Jump("r2", "Left");
         while (!Bot.ShouldExit && !Core.CheckInventory("Champion Drakath Defeated"))
         {
             if (Bot.Player.Username == players[0])
             {
                 monster = Bot.Monsters.CurrentMonsters?.Find(m => m.MapID == 1);
-                if ((monster.HP <= 18300000 && monster.HP >= 18000000) || 
-                    (monster.HP <= 16300000 && monster.HP >= 16000000) || 
-                    (monster.HP <= 14300000 && monster.HP >= 14000000) || 
-                    (monster.HP <= 12300000 && monster.HP >= 12000000) || 
-                    (monster.HP <= 8150000 && monster.HP >= 8000000) || 
-                    (monster.HP <= 6150000 && monster.HP >= 6000000) || 
-                    (monster.HP <= 4150000 && monster.HP >= 4000000))
+                if (((monster.HP <= (18000000 + (int)(Bot.Config.Get<int>("threshold"))) && monster.HP >= 18000000) || 
+                    (monster.HP <= (16000000 + (int)(Bot.Config.Get<int>("threshold"))) && monster.HP >= 16000000) || 
+                    (monster.HP <= (14000000 + (int)(Bot.Config.Get<int>("threshold"))) && monster.HP >= 14000000) || 
+                    (monster.HP <= (12000000 + (int)(Bot.Config.Get<int>("threshold"))) && monster.HP >= 12000000) || 
+                    (monster.HP <= (8000000 + (int)(Bot.Config.Get<int>("threshold"))/2) && monster.HP >= 8000000) || 
+                    (monster.HP <= (6000000 + (int)(Bot.Config.Get<int>("threshold"))/2) && monster.HP >= 6000000) || 
+                    (monster.HP <= (4000000 + (int)(Bot.Config.Get<int>("threshold"))/2) && monster.HP >= 4000000)) && !Bot.Target.HasActiveAura("Focus"))
                 {
-                    Core.Logger($"Drakath HP: {monster.HP}, Preparing to Taunt");
+                    Core.Logger($"Drakath HP: {monster.HP}, Taunting");
                     Bot.Skills.StartAdvanced("5");
                 }
                 else
@@ -103,10 +131,15 @@ public class ChampionDrakath
                 
             }
             
+            if (Bot.Player.Username != players[0] && Bot.Config.Get<bool>("spamPot") && Bot.Skills.CanUseSkill(5))
+            {
+                Bot.Skills.UseSkill(5);
+            }
             Bot.Combat.Attack("Champion Drakath");
             Bot.Sleep(1000);
         }
 
+        Core.Join("championdrakath", "r2", "Left");
         Adv.KillUltra("championdrakath", "r2", "Left", "Champion Drakath", "Champion Drakath Defeated", publicRoom: false);
         Core.EnsureComplete(8300);
     }
