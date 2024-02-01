@@ -8,6 +8,7 @@ tags: ultra, weekly, army
 //cs_include Scripts/CoreStory.cs
 //cs_include Scripts/CoreAdvanced.cs
 //cs_include Scripts/Army/CoreArmyLite.cs
+//cs_include Scripts/Army/Ultra/CoreUltra.cs
 using Skua.Core.Interfaces;
 using Skua.Core.Models.Items;
 using Skua.Core.Models.Monsters;
@@ -23,20 +24,21 @@ public class ChampionDrakath
     public CoreFarms Farm = new();
     private static CoreArmyLite sArmy = new();
     private CoreArmyLite Army = new();
+    public CoreUltra Ultra = new();
     public string OptionsStorage = "Ultra";
     public bool DontPreconfigure = true;
     public List<IOption> Options = new List<IOption>()
     {
-        new Option<int>("threshold", "HP Threshold", "Enter HP threshold to taunt, value is halved < 10 mil HP (Default: 300000)", 300000),
-        new Option<bool>("spamPot", "Spam Felicitous Philtre?", "Yes(True) / No(False)", true),
+        new Option<int>("threshold", "HP Threshold", "Player 1 uses taunt when HP is within the threshold, value is halved < 10 mil HP. (Default: 300000)", 300000),
+        new Option<bool>("spamFeli", "Spam Felicitous Philtre?", "Yes(True) / No(False)", true),
         sArmy.player1,
-        new Option<string>("player1Class", "Account #1 Class", "Enter the name of class to equip.", "Void Highlord"),
+        new Option<string>("player1Class", "Account #1 Class", "Enter the name of class to equip. (Default: Void Highlord)", "Void Highlord"),
         sArmy.player2,
-        new Option<string>("player2Class", "Account #2 Class", "Enter the name of class to equip.", "ArchPaladin"),
+        new Option<string>("player2Class", "Account #2 Class", "Enter the name of class to equip. (Default: ArchPaladin)", "ArchPaladin"),
         sArmy.player3,
-        new Option<string>("player3Class", "Account #3 Class", "Enter the name of class to equip.", "Lord of Order"),
+        new Option<string>("player3Class", "Account #3 Class", "Enter the name of class to equip. (Default: Void Lord of Order)", "Lord of Order"),
         sArmy.player4,
-        new Option<string>("player4Class", "Account #4 Class", "Enter the name of class to equip.", "StoneCrusher"),
+        new Option<string>("player4Class", "Account #4 Class", "Enter the name of class to equip. (Default: Void StoneCrusher)", "StoneCrusher"),
         sArmy.packetDelay,
         CoreBots.Instance.SkipOptions
     };
@@ -67,39 +69,41 @@ public class ChampionDrakath
         string[] players = Army.Players();
         if (Bot.Player.Username == players[0])
         {
-            Core.Equip(Bot.Config.Get<string>("player1Class"));
-            Core.Equip("Potent Revitalize Elixir");
-            Core.Equip("Scroll of Enrage");
+            Core.Equip(new[]{ Bot.Config.Get<string>("player1Class"), "Potent Revitalize Elixir", "Scroll of Enrage" });
             if (Bot.Player.CurrentClass.Name == "Void Highlord")
-                Bot.Skills.StartAdvanced("Void Highlord", true, ClassUseMode.Atk);
+                Bot.Skills.StartAdvanced("3 | 4 | 1 | 2");
             else
                 Bot.Skills.StartAdvanced(Bot.Player.CurrentClass?.Name ?? "generic", false);
         } 
         else if (Bot.Player.Username == players[1])
         {
-            Core.Equip(Bot.Config.Get<string>("player2Class"));
-            Core.Equip("Potent Revitalize Elixir");
-            Core.Equip("Felicitous Philtre");
-            // Bot.Skills.StartAdvanced("5S | 3 | 1 | 2");
-            Bot.Skills.StartAdvanced("3 | 1 | 2 | 1 | 2 | 4 | 1", 250, SkillUseMode.WaitForCooldown);
+            Core.Equip(new[]{ Bot.Config.Get<string>("player2Class"), "Potent Revitalize Elixir", "Felicitous Philtre" });
+            // Bot.Skills.StartAdvanced("3 | 1 | 2 | 1 | 2 | 4 | 1", 250, SkillUseMode.WaitForCooldown);
+            if (Bot.Player.CurrentClass.Name == "ArchPaladin")
+                Bot.Skills.StartAdvanced("3 | 1 | 2");
+            else
+                Bot.Skills.StartAdvanced(Bot.Player.CurrentClass?.Name ?? "generic", false);
         } 
         else if (Bot.Player.Username == players[2])
         {
-            Core.Equip(Bot.Config.Get<string>("player3Class"));
-            Core.Equip("Potent Revitalize Elixir");
-            Core.Equip("Felicitous Philtre");
-            Bot.Skills.StartAdvanced("2 | 4 | 1 | 3");
+            Core.Equip(new[]{ Bot.Config.Get<string>("player3Class"), "Potent Revitalize Elixir", "Felicitous Philtre" });
+            if (Bot.Player.CurrentClass.Name == "Lord of Order")
+                Bot.Skills.StartAdvanced("2 | 4 | 1 | 3");
+            else
+                Bot.Skills.StartAdvanced(Bot.Player.CurrentClass?.Name ?? "generic", false);
         }
         else if (Bot.Player.Username == players[3])
         {
-            Core.Equip(Bot.Config.Get<string>("player4Class"));
-            Core.Equip("Potent Revitalize Elixir");
-            Core.Equip("Felicitous Philtre");
-            Bot.Skills.StartAdvanced("2 | 3 | 1 | 4");
+            Core.Equip(new[]{ Bot.Config.Get<string>("player4Class"), "Potent Revitalize Elixir", "Felicitous Philtre" });
+            if (Bot.Player.CurrentClass.Name == "StoneCrusher")
+                Bot.Skills.StartAdvanced("2 | 3 | 1 | 4");
+            else
+                Bot.Skills.StartAdvanced(Bot.Player.CurrentClass?.Name ?? "generic", false);
         }
 
         Core.EnsureAccept(8300);
         Core.Join("championdrakath", "r2", "Left");
+        Army.waitForParty("championdrakath");
 
         Monster? monster = Bot.Monsters.CurrentMonsters?.Find(m => m.MapID == 1);
         if (monster == null)
@@ -113,6 +117,8 @@ public class ChampionDrakath
             if (Bot.Player.Username == players[0])
             {
                 monster = Bot.Monsters.CurrentMonsters?.Find(m => m.MapID == 1);
+                if (monster == null)
+                    continue;
                 if (((monster.HP <= (18000000 + (int)(Bot.Config.Get<int>("threshold"))) && monster.HP >= 18000000) || 
                     (monster.HP <= (16000000 + (int)(Bot.Config.Get<int>("threshold"))) && monster.HP >= 16000000) || 
                     (monster.HP <= (14000000 + (int)(Bot.Config.Get<int>("threshold"))) && monster.HP >= 14000000) || 
@@ -126,17 +132,19 @@ public class ChampionDrakath
                 }
                 else
                 {
-                    Bot.Skills.StartAdvanced("4S | 3S | 1S | 2S");
+                    if (Bot.Player.CurrentClass.Name == "Void Highlord")
+                        Bot.Skills.StartAdvanced("3 | 4 | 1 | 2");
+                    else
+                        Bot.Skills.StartAdvanced(Bot.Player.CurrentClass?.Name ?? "generic", false);
                 }
                 
             }
             
-            if (Bot.Player.Username != players[0] && Bot.Config.Get<bool>("spamPot") && Bot.Skills.CanUseSkill(5))
+            if (Bot.Player.Username != players[0] && Bot.Config.Get<bool>("spamFeli") && Bot.Skills.CanUseSkill(5))
             {
                 Bot.Skills.UseSkill(5);
             }
             Bot.Combat.Attack("Champion Drakath");
-            Bot.Sleep(1000);
         }
 
         Core.Join("championdrakath", "r2", "Left");
