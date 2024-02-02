@@ -58,12 +58,14 @@ public class CoreUltra
             Core.Logger($"Monster not found. Something is wrong. Stopping bot", messageBox: true, stopBot: true);
             return;
         }
-        Core.Jump("r2", "Left");
+        Core.Jump("r2", "Left"); // Gets rid of quest and bank menu (for the show)
         while (!Bot.ShouldExit && !Core.CheckInventory("Champion Drakath Defeated"))
         {
             if (Bot.Player.Username == players[0])
             {
                 monster = Bot.Monsters.CurrentMonsters?.Find(m => m.MapID == 1);
+                if (monster == null) // Probably death occurred
+                    continue;
                 if (((monster.HP <= (18000000 + (int)(Bot.Config.Get<int>("threshold"))) && monster.HP >= 18000000) || 
                     (monster.HP <= (16000000 + (int)(Bot.Config.Get<int>("threshold"))) && monster.HP >= 16000000) || 
                     (monster.HP <= (14000000 + (int)(Bot.Config.Get<int>("threshold"))) && monster.HP >= 14000000) || 
@@ -77,10 +79,7 @@ public class CoreUltra
                 }
                 else
                 {
-                    if (Bot.Player.CurrentClass.Name == "Void Highlord")
-                        Bot.Skills.StartAdvanced("3 | 4 | 1 | 2");
-                    else
-                        Bot.Skills.StartAdvanced(Bot.Player.CurrentClass?.Name ?? "generic", false);
+                    Bot.Skills.StartAdvanced("3 | 4 | 1 | 2");
                 }
                 
             }
