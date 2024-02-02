@@ -29,7 +29,7 @@ public class CoreUltra
     }
 
     /// <summary>
-    /// Roundabout way of using revitalize elixir. Use after equipping class or all auras will disappear
+    /// Roundabout way of using revitalize elixir. Use after equipping class or all auras will disappear.
     /// </summary>
     public void UseRevitalize()
     {
@@ -44,56 +44,38 @@ public class CoreUltra
         } while (!Bot.ShouldExit && !Bot.Self.HasActiveAura("Potent Revitalize Elixir"));
     }
 
-    public void KillChampDrakath()
+    /// <summary>
+    /// Configures class skillset for ultras.
+    /// Doesn't use wait for cooldown because it also waits for potion cd, so it's better to just spam skills.
+    /// </summary>
+    public void SkillsConfig(bool spamPot = false)
     {
-        string[] players = Army.Players();
+        string currentClass = Bot.Player.CurrentClass.Name;
+        string skillString = "";
 
-        Core.EnsureAccept(8300);
-        Core.Join("championdrakath", "r2", "Left");
-        Army.waitForParty("championdrakath");
-
-        Monster? monster = Bot.Monsters.CurrentMonsters?.Find(m => m.MapID == 1);
-        if (monster == null)
+        switch(currentClass)
         {
-            Core.Logger($"Monster not found. Something is wrong. Stopping bot", messageBox: true, stopBot: true);
-            return;
-        }
-        Core.Jump("r2", "Left"); // Gets rid of quest and bank menu (for the show)
-        while (!Bot.ShouldExit && !Core.CheckInventory("Champion Drakath Defeated"))
-        {
-            if (Bot.Player.Username == players[0])
-            {
-                monster = Bot.Monsters.CurrentMonsters?.Find(m => m.MapID == 1);
-                if (monster == null) // Probably death occurred
-                    continue;
-                if (((monster.HP <= (18000000 + (int)(Bot.Config.Get<int>("threshold"))) && monster.HP >= 18000000) || 
-                    (monster.HP <= (16000000 + (int)(Bot.Config.Get<int>("threshold"))) && monster.HP >= 16000000) || 
-                    (monster.HP <= (14000000 + (int)(Bot.Config.Get<int>("threshold"))) && monster.HP >= 14000000) || 
-                    (monster.HP <= (12000000 + (int)(Bot.Config.Get<int>("threshold"))) && monster.HP >= 12000000) || 
-                    (monster.HP <= (8000000 + (int)(Bot.Config.Get<int>("threshold"))/2) && monster.HP >= 8000000) || 
-                    (monster.HP <= (6000000 + (int)(Bot.Config.Get<int>("threshold"))/2) && monster.HP >= 6000000) || 
-                    (monster.HP <= (4000000 + (int)(Bot.Config.Get<int>("threshold"))/2) && monster.HP >= 4000000)) && !Bot.Target.HasActiveAura("Focus"))
-                {
-                    Core.Logger($"Drakath HP: {monster.HP}, Taunting");
-                    Bot.Skills.StartAdvanced("5");
-                }
-                else
-                {
-                    Bot.Skills.StartAdvanced("3 | 4 | 1 | 2");
-                }
-                
-            }
-            
-            if (Bot.Player.Username != players[0] && Bot.Config.Get<bool>("spamFeli") && Bot.Skills.CanUseSkill(5))
-            {
-                Bot.Skills.UseSkill(5);
-            }
-            Bot.Combat.Attack("Champion Drakath");
-        }
+            case "Void Highlord":
+                skillString = "3H>50S | 4 | 2 | 1H>30S | 3H>50S | 2 | 1H>30S | 3H>50S | 2 | 1H>30S";
+                break;
+            case "ArchPaladin":
+                skillString = "3 | 1 | 2 | 1 | 2 | 4 | 1";
+                break;
+            case "Lord Of Order":
+                skillString = "2 | 4 | 1 | 3";
+                break;
+            case "StoneCrusher":
+                skillString = "2 | 3 | 1 | 4";
+                break;
 
-        Core.Join("championdrakath", "r2", "Left");
-        Adv.KillUltra("championdrakath", "r2", "Left", "Champion Drakath", "Champion Drakath Defeated", publicRoom: false);
-        Core.EnsureComplete(8300);
+            default:
+                skillString = "1 | 2 | 3 | 4";
+                break;
+        }
+        if (spamPot)
+            skillString = "5S | " + skillString;
+        Core.Logger($"{currentClass}, {skillString}");
+        Bot.Skills.StartAdvanced(skillString);
     }
 
 }

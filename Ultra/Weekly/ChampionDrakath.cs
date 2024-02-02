@@ -69,38 +69,71 @@ public class ChampionDrakath
         string[] players = Army.Players();
         if (Bot.Player.Username == players[0])
         {
-            Core.Equip(new[]{ Bot.Config.Get<string>("player1Class"), "Potent Revitalize Elixir", "Scroll of Enrage" });
-            if (Bot.Player.CurrentClass.Name == "Void Highlord")
-                Bot.Skills.StartAdvanced("3H>50S | 4 | 2 | 1H>30S | 3H>50S | 2 | 1H>30S | 3H>50S | 2 | 1H>30S");
-            else
-                Bot.Skills.StartAdvanced(Bot.Player.CurrentClass?.Name ?? "generic", false);
+            Core.Equip(new[]{ "Void Highlord", "Potent Revitalize Elixir", "Scroll of Enrage" });
         } 
         else if (Bot.Player.Username == players[1])
         {
             Core.Equip(new[]{ Bot.Config.Get<string>("player2Class"), "Potent Revitalize Elixir", "Felicitous Philtre" });
-            // Bot.Skills.StartAdvanced("3 | 1 | 2 | 1 | 2 | 4 | 1", 250, SkillUseMode.WaitForCooldown);
-            if (Bot.Player.CurrentClass.Name == "ArchPaladin")
-                Bot.Skills.StartAdvanced("3 | 1 | 2 | 1 | 2 | 4 | 1");
-            else
-                Bot.Skills.StartAdvanced(Bot.Player.CurrentClass?.Name ?? "generic", false);
         } 
         else if (Bot.Player.Username == players[2])
         {
             Core.Equip(new[]{ Bot.Config.Get<string>("player3Class"), "Potent Revitalize Elixir", "Felicitous Philtre" });
-            if (Bot.Player.CurrentClass.Name == "Lord of Order")
-                Bot.Skills.StartAdvanced("2 | 4 | 1 | 3");
-            else
-                Bot.Skills.StartAdvanced(Bot.Player.CurrentClass?.Name ?? "generic", false);
         }
         else if (Bot.Player.Username == players[3])
         {
             Core.Equip(new[]{ Bot.Config.Get<string>("player4Class"), "Potent Revitalize Elixir", "Felicitous Philtre" });
-            if (Bot.Player.CurrentClass.Name == "StoneCrusher")
-                Bot.Skills.StartAdvanced("2 | 3 | 1 | 4");
-            else
-                Bot.Skills.StartAdvanced(Bot.Player.CurrentClass?.Name ?? "generic", false);
         }
+        Ultra.SkillsConfig();
         
-        Ultra.KillChampDrakath();
+        int threshold = (int)Bot.Config.Get<int>("threshold");
+        // bool spamFeli = Bot.Config.Get<bool>("spamFeli");
+
+        Core.EnsureAccept(8300);
+        Core.Join("championdrakath", "r2", "Left");
+        Army.waitForParty("championdrakath");
+
+        Monster? monster = Bot.Monsters.CurrentMonsters?.Find(m => m.MapID == 1);
+        if (monster == null)
+        {
+            Core.Logger($"Monster not found. Something is wrong. Stopping bot", messageBox: true, stopBot: true);
+            return;
+        }
+        Core.Jump("r2", "Left"); // Gets rid of quest and bank menu (for the show)
+        while (!Bot.ShouldExit && !Core.CheckInventory("Champion Drakath Defeated"))
+        {
+            if (Bot.Player.Username == players[0])
+            {
+                monster = Bot.Monsters.CurrentMonsters?.Find(m => m.MapID == 1);
+                // if (monster == null) // Probably death occurred
+                //     continue;
+                if ((monster.HP <= (18000000 + threshold) && monster.HP >= 18000000) || 
+                    (monster.HP <= (16000000 + threshold) && monster.HP >= 16000000) || 
+                    (monster.HP <= (14000000 + threshold) && monster.HP >= 14000000) || 
+                    (monster.HP <= (12000000 + threshold) && monster.HP >= 12000000) || 
+                    (monster.HP <= (8000000 + threshold/2) && monster.HP >= 8000000) || 
+                    (monster.HP <= (6000000 + threshold/2) && monster.HP >= 6000000) || 
+                    (monster.HP <= (4000000 + threshold/2) && monster.HP >= 4000000))
+                {
+                    
+                    Core.Logger($"Drakath HP: {monster.HP}, Taunting");
+                    while (!Bot.Target.HasActiveAura("Focus"))
+                    {
+                        Bot.Skills.StartAdvanced("5");
+                    }
+                    Bot.Skills.StartAdvanced("3H>50S | 4 | 2 | 1H>30S | 3H>50S | 2 | 1H>30S | 3H>50S | 2 | 1H>30S");
+                }
+                
+            }
+            
+            // if (Bot.Player.Username != players[0] && spamFeli && Bot.Skills.CanUseSkill(5))
+            // {
+            //     Bot.Skills.UseSkill(5);
+            // }
+            Bot.Combat.Attack("Champion Drakath");
+        }
+
+        Core.Join("championdrakath", "r2", "Left");
+        Adv.KillUltra("championdrakath", "r2", "Left", "Champion Drakath", "Champion Drakath Defeated", publicRoom: false);
+        Core.EnsureComplete(8300);
     }
 }
