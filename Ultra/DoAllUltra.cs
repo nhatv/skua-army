@@ -15,6 +15,7 @@ tags: ultra, daily, army
 //cs_include Scripts/Army/Ultra/UltraWarden.cs
 //cs_include Scripts/Army/Ultra/UltraTyndarius.cs
 //cs_include Scripts/Army/Ultra/OriginulDaily.cs
+//cs_include Scripts/Army/Ultra/CoreUltra.cs
 using Skua.Core.Interfaces;
 using Skua.Core.Models.Items;
 using Skua.Core.Models.Quests;

@@ -9,6 +9,7 @@ tags: ultra, army, daily
 //cs_include Scripts/CoreAdvanced.cs
 //cs_include Scripts/CoreDailies.cs
 //cs_include Scripts/Army/CoreArmyLite.cs
+//cs_include Scripts/Army/Ultra/CoreUltra.cs
 using Skua.Core.Interfaces;
 using Skua.Core.Models.Items;
 using Skua.Core.Models.Quests;
@@ -24,6 +25,7 @@ public class OriginulDaily
     public CoreDailies Daily = new();
     private static CoreArmyLite sArmy = new();
     private CoreArmyLite Army = new();
+    public CoreUltra Ultra = new();
     public string OptionsStorage = "Ultra";
     public bool DontPreconfigure = true;
     public List<IOption> Options = new List<IOption>()
@@ -72,6 +74,7 @@ public class OriginulDaily
         if (Bot.Flash.GetGameObject<bool>("ui.monsterIcon.redX.visible"))
             Bot.Flash.CallGameFunction("world.toggleMonsters");
 
+        Ultra.UseRevitalize();
         Core.EnsureAccept(9091);
 
         // Shaman (t), LoO, DoT (honor), LR (t)
