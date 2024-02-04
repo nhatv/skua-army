@@ -40,9 +40,9 @@ public class TempleShrineDaily
 
     public void ScriptMain(IScriptInterface bot)
     {
-        //Core.SetOptions(disableClassSwap: true);
         Core.BankingBlackList.AddRange(new[] { "Sliver of Moonlight", "Sliver of Sunlight", "Ecliptic Offering", "Rite of Ascension" });
-        Core.SetOptions();
+        Core.SetOptions(disableClassSwap: true);
+        // Core.SetOptions();
 
         DoDaily();
 
@@ -65,6 +65,19 @@ public class TempleShrineDaily
         Core.AddDrop("Sliver of Moonlight", "Sliver of Sunlight", "Ecliptic Offering", "Rite of Ascension");
         string[] players = Army.Players();
         // Ultra.UseRevitalize();
+        Bot.Events.ExtensionPacketReceived += Army.PartyManagement;
+        Army.waitForParty("whitemap");
+        
+        if (Bot.Player.Username == players[0])
+        {
+            for (int i = 1; i < 4; i++)
+            {
+                Army.PartyInvite(players[i]);
+                Core.Sleep();
+            }
+        }
+        else
+            Core.Sleep(5000);
 
         // Cannot hit boss without killing all the enemies
         //Night Falls (Daily Bonus) - Sliver of Moonlight
@@ -117,10 +130,12 @@ public class TempleShrineDaily
             Core.EnsureAccept(9305);
 
             Core.Join("ascendeclipse");
+            // Core.SendPackets($"%xt%zm%dungeonQueue%{Bot.Map.RoomID}%ascendeclipse%");
 
             // Army.waitForParty("ascendeclipse");
 
-            // IDK they attack too fast for some reason
+            // private rooms makes them attack too fast
+            // work on party invites
             if (Bot.Player.Username == players[1] || Bot.Player.Username == players[3])
                 KillUltrav2("ascendeclipse", "Enter", "Spawn", "Fallen Star");
             KillUltrav2("ascendeclipse", "Enter", "Spawn", "Blessless Deer");
@@ -147,6 +162,7 @@ public class TempleShrineDaily
             Core.EnsureComplete(9305);
             Bot.Wait.ForPickup("Ecliptic Offering");
         }
+        Bot.Events.ExtensionPacketReceived -= Army.PartyManagement;
         
         // async void SkyListener(dynamic packet)
         // {
@@ -258,6 +274,7 @@ public class TempleShrineDaily
         {
             Core.Equip("Legion Revenant");
             Core.Equip("Cape of Awe"); // Penitence Cape
+            Core.Equip("Necrotic Sword of Doom");
             Bot.Skills.StartAdvanced("3S | 4S | 1S | 2S");
             Bot.Options.LagKiller = false;
         } 
@@ -265,6 +282,7 @@ public class TempleShrineDaily
         {
             Core.Equip("ArchPaladin");
             Core.Equip("Cape of Awe"); // Penitence Cape
+            Core.Equip("Dual Exalted Apotheosis");
             // Bot.Skills.StartAdvanced("3S | 2S | 1S");
             Bot.Skills.StartAdvanced("3 | 1 | 2 | 1 | 2 | 4 | 1", 250, SkillUseMode.WaitForCooldown);
         } 
@@ -272,23 +290,23 @@ public class TempleShrineDaily
         {
             Core.Equip("Lord of Order");
             Core.Equip("Cape of Awe"); // Penitence Cape
+            Core.Equip("Dual Exalted Apotheosis");
             Bot.Skills.StartAdvanced("2 | 4 | 1 | 3");
         }
         else if (Bot.Player.Username == players[3])
         {
             // Healer gear
-            // Core.Equip("Dragon of Time");
-            // Core.Equip("Awescended Omni Cowl");
-            // Core.Equip("Category Five Hurricane Cloud");
-            // Core.Equip("Exalted Apotheosis");
-            // Bot.Skills.StartAdvanced("5S | 3 | 2 | 1 | 2 | 4");
+            Core.Equip("Dragon of Time");
+            Core.Equip("Awescended Omni Cowl");
+            Core.Equip("Category Five Hurricane Cloud");
+            Core.Equip("Exalted Apotheosis");
+            Bot.Skills.StartAdvanced("1 | 2 | 4 | 2 | 3 | 2");
 
-            Core.Equip("Chaos Avenger");
-            Bot.Skills.StartAdvanced("4 | 3 | 1 | 2");
+            // Core.Equip("Chaos Avenger");
+            // Bot.Skills.StartAdvanced("4 | 3 | 1 | 2");
             // Core.Equip("StoneCrusher");
             // Core.Equip("Cape of Awe"); // Penitence Cape
             // Bot.Skills.StartAdvanced("2 | 3 | 1 | 4");
         }
     }
-
 }
