@@ -74,8 +74,22 @@ public class CoreUltra
         }
         if (spamPot)
             skillString = "5S | " + skillString;
-        Core.Logger($"{currentClass}, {skillString}");
         Bot.Skills.StartAdvanced(skillString);
+    }
+
+    public void PartySetup(string[] players)
+    {
+        Army.waitForParty("whitemap");
+        Bot.Events.ExtensionPacketReceived += Army.PartyManagement;
+        Core.Sleep();
+        if (Bot.Player.Username == players[0])
+        {
+            for (int i = 1; i < 4; i++)
+            {
+                Army.PartyInvite(players[i]);
+                Core.Sleep();
+            }
+        }
     }
 
 }
