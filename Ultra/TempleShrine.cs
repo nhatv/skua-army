@@ -58,16 +58,11 @@ public class TempleShrineDaily
 
         Core.AddDrop("Sliver of Moonlight", "Sliver of Sunlight", "Ecliptic Offering", "Rite of Ascension");
 
-        // Turn off antilag
-        Bot.Options.LagKiller = Bot.Options.LagKiller ? false : true;
-        Bot.Flash.SetGameObject("stage.frameRate", 30);
-        if (Bot.Flash.GetGameObject<bool>("ui.monsterIcon.redX.visible"))
-            Bot.Flash.CallGameFunction("world.toggleMonsters");
-
         string[] players = Army.Players();
         // Ultra.UseRevitalize();
         Ultra.PartySetup(players);
         EquipDungeon(players);
+        Ultra.AntiLagOff();
         
         // Cannot hit boss without killing all the enemies
         //Night Falls (Daily Bonus) - Sliver of Moonlight
@@ -124,6 +119,8 @@ public class TempleShrineDaily
 
             // Army.waitForParty("ascendeclipse");
             Core.Equip(new[] {"Potent Revitalize Elixir", "Scroll of Enrage"});
+            if (Bot.Player.Username == players[0]) // LR and other dps
+                Ultra.SkillsConfig(true);
 
             // doing dungeon without party makes them attack fast
             KillUltrav2("ascendeclipse", "Enter", "Spawn", "Fallen Star");
@@ -134,9 +131,13 @@ public class TempleShrineDaily
             KillUltrav2("ascendeclipse", "r1", "Left", "Suffocated Light");
             KillUltrav2("ascendeclipse", "r1", "Left", "Imprisoned Fairy");
 
+            if (Bot.Player.Username == players[1] || Bot.Player.Username == players[2])
+                Bot.Events.ExtensionPacketReceived += SunListener;
             Core.Jump("r2", "Left");
             KillUltrav2("ascendeclipse", "r2", "Left", "Moon Haze");
             KillUltrav2("ascendeclipse", "r2", "Left", "Sunset Knight");
+            if (Bot.Player.Username == players[1] || Bot.Player.Username == players[2])
+                Bot.Events.ExtensionPacketReceived -= SunListener;
 
             Core.Jump("r3", "Left");
             if (Bot.Player.Username == players[0] || Bot.Player.Username == players[3]) // LR and other dps
@@ -166,22 +167,44 @@ public class TempleShrineDaily
         }
         Bot.Events.ExtensionPacketReceived -= Army.PartyManagement;
 
-
+        async void SunListener(dynamic packet)
+        {
+            string type = packet["params"].type;
+            dynamic data = packet["params"].dataObj;
+            if (type is not null and "json")
+            {
+                string cmd = data.cmd.ToString();
+                switch (cmd)
+                {
+                    case "ct":
+                        if (data.anims is not null)
+                        {
+                            foreach (var a in data.anims)
+                            {
+                                if (a is not null && (string)a["msg"] is "The sun's heat radiates!"){
+                                    Core.Logger($"{(string)a["msg"]}");
+                                    Bot.Sleep(1500);
+                                    Bot.Skills.StartAdvanced("3 | 1 | 4");
+                                }
+                            }
+                        }
+                        break;
+                }
+            }
+        }
     }
 
-        /// <summary>
-    /// Joins a map, jump & set the spawn point and kills the specified monster. But also listens for Counter Attacks
+    /// <summary>
+    /// Modified version of Adv.KillUltra. Joins a map, jump & set the spawn point and kills the specified monster. But also listens for Counter Attacks
     /// </summary>
     /// <param name="map">Map to join</param>
     /// <param name="cell">Cell to jump to</param>
     /// <param name="pad">Pad to jump to</param>
     /// <param name="monster">Name of the monster to kill</param>
-    public void KillUltrav2(string map, string cell, string pad, string monster)
+    public void KillUltrav2(string map, string cell, string pad, string monster, bool tauntLoop = true)
     {
         string[] players = Army.Players();
         Core.Join(map, cell, pad);
-        // if (!forAuto)
-        //     _RaceGear(monster);
         Core.Jump(cell, pad);
 
         Core.Logger($"Killing Ultra-Boss {monster}");
@@ -190,11 +213,19 @@ public class TempleShrineDaily
         while (!Bot.ShouldExit && !ded)
         {
             if (!Core.IsMonsterAlive(monster))
-                break;
+                return;
             if (monster == "Fallen Star")
             {
                 while (Bot.Self.HasActiveAura("Solar Flare"))
                     Bot.Combat.Attack("Blessless Deer");
+            }
+            if (tauntLoop)
+            {
+                while (!Bot.Target.HasActiveAura("Focus"))
+                {
+                    Bot.Skills.StartAdvanced("5");
+                }
+                Ultra.SkillsConfig(false);
             }
             // else if (Bot.Player.Username == players[0] && monster == "Suffocated Light")
             // {
@@ -225,12 +256,12 @@ public class TempleShrineDaily
         else if (Bot.Player.Username == players[3])
         {
             // Healer gear
-            Core.Equip("Dragon of Time");
-            Core.Equip("Awescended Omni Cowl");
-            Core.Equip("Category Five Hurricane Cloud");
-            Core.Equip("Exalted Apotheosis");
+            // Core.Equip("Dragon of Time");
+            // Core.Equip("Awescended Omni Cowl");
+            // Core.Equip("Category Five Hurricane Cloud");
+            // Core.Equip("Exalted Apotheosis");
 
-            // Core.Equip("Chaos Avenger");
+            Core.Equip("Chaos Avenger");
             // Bot.Skills.StartAdvanced("4 | 3 | 1 | 2");
         }
         Ultra.SkillsConfig();

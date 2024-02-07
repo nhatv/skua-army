@@ -77,10 +77,14 @@ public class CoreUltra
         Bot.Skills.StartAdvanced(skillString);
     }
 
+    /// <summary>
+    /// Player 1 invites the other 3 players to make a party.
+    /// </summary>
+    /// <param name="players">List of player names in the army</param>
     public void PartySetup(string[] players)
     {
-        Army.waitForParty("whitemap");
         Bot.Events.ExtensionPacketReceived += Army.PartyManagement;
+        Army.waitForParty("templeshrine");
         Core.Sleep();
         if (Bot.Player.Username == players[0])
         {
@@ -90,6 +94,18 @@ public class CoreUltra
                 Core.Sleep();
             }
         }
+        else
+            Core.Sleep();
     }
 
+    /// <summary>
+    /// Turns off antilag from SetOptions()
+    /// </summary>
+    public void AntiLagOff()
+    {
+        Bot.Options.LagKiller = Bot.Options.LagKiller ? false : true;
+        Bot.Flash.SetGameObject("stage.frameRate", 30);
+        if (Bot.Flash.GetGameObject<bool>("ui.monsterIcon.redX.visible"))
+            Bot.Flash.CallGameFunction("world.toggleMonsters");
+    }
 }
