@@ -119,7 +119,7 @@ public class TempleShrineDaily
 
             // Army.waitForParty("ascendeclipse");
             Core.Equip(new[] {"Potent Revitalize Elixir", "Scroll of Enrage"});
-            if (Bot.Player.Username == players[0]) // LR and other dps
+            if (Bot.Player.Username == players[0])
                 Ultra.SkillsConfig(true);
 
             // doing dungeon without party makes them attack fast
@@ -134,7 +134,8 @@ public class TempleShrineDaily
             if (Bot.Player.Username == players[1] || Bot.Player.Username == players[2])
                 Bot.Events.ExtensionPacketReceived += SunListener;
             Core.Jump("r2", "Left");
-            KillUltrav2("ascendeclipse", "r2", "Left", "Moon Haze");
+            if (Bot.Player.Username == players[0] || Bot.Player.Username == players[2]) // LR and Loo
+                KillUltrav2("ascendeclipse", "r2", "Left", "Moon Haze");
             KillUltrav2("ascendeclipse", "r2", "Left", "Sunset Knight");
             if (Bot.Player.Username == players[1] || Bot.Player.Username == players[2])
                 Bot.Events.ExtensionPacketReceived -= SunListener;
@@ -212,6 +213,7 @@ public class TempleShrineDaily
         Bot.Events.MonsterKilled += b => ded = true;
         while (!Bot.ShouldExit && !ded)
         {
+            Bot.Combat.Attack(monster);
             if (!Core.IsMonsterAlive(monster))
                 return;
             if (monster == "Fallen Star")
@@ -221,18 +223,15 @@ public class TempleShrineDaily
             }
             if (tauntLoop)
             {
-                while (!Bot.Target.HasActiveAura("Focus"))
+                if (Bot.Target is not null)
                 {
-                    Bot.Skills.StartAdvanced("5");
+                    while (!Bot.Target.HasActiveAura("Focus"))
+                    {
+                        Ultra.SkillsConfig(true);
+                    }
+                    Ultra.SkillsConfig(false);
                 }
-                Ultra.SkillsConfig(false);
             }
-            // else if (Bot.Player.Username == players[0] && monster == "Suffocated Light")
-            // {
-            //     while (Bot.Target.HasActiveAura("Gathering Light"))
-            //         Bot.Skills.UseSkill(5);
-            // }
-            Bot.Combat.Attack(monster);
             Bot.Sleep(1000);
         }
     }
