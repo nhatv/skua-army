@@ -18,7 +18,7 @@ using Skua.Core.Models.Players;
 using Skua.Core.Models.Monsters;
 using Skua.Core.Options;
 
-public class TempleShrineDaily
+public class TempleShrineFinalBoss
 {
     public IScriptInterface Bot => IScriptInterface.Instance;
 
@@ -46,6 +46,8 @@ public class TempleShrineDaily
         Core.BankingBlackList.AddRange(new[] { "Sliver of Moonlight", "Sliver of Sunlight", "Ecliptic Offering", "Rite of Ascension" });
         Core.SetOptions(disableClassSwap: true);
         // Core.SetOptions();
+        Core.Sleep(2000);
+        Ultra.AntiLagOff();
 
         DoDaily();
 
@@ -64,54 +66,14 @@ public class TempleShrineDaily
 
         string[] players = Army.Players();
         // Ultra.UseRevitalize();
-        Ultra.PartySetup(players);
+        // Ultra.PartySetup(players);
         EquipDungeon(players);
-        Ultra.AntiLagOff();
         Bot.Options.AttackWithoutTarget = true;
 
-        Core.ActivateDungeonMonsterListener();
+        // Core.ActivateDungeonMonsterListener();
         
         // Cannot hit boss without killing all the enemies
         //Night Falls (Daily Bonus) - Sliver of Moonlight
-        if (Daily.CheckDaily(9303))
-        {
-            if (Army.isPartyLeader())
-                Core.SendPackets($"%xt%zm%dungeonQueue%{Bot.Map.RoomID}%solsticemoon%");
-            Core.EnsureAccept(9303);
-            Adv.KillUltra("solsticemoon", "Enter", "Spawn", "Faithless Deer");
-            Adv.KillUltra("solsticemoon", "Enter", "Spawn", "Shackled Fairy");
-            Core.Jump("r1", "Left");
-            Adv.KillUltra("solsticemoon", "r1", "Left", "Lunar Haze");
-            Adv.KillUltra("solsticemoon", "r1", "Left", "Faithless Deer");
-            Core.Jump("r2", "Right");
-            Adv.KillUltra("solsticemoon", "r2", "Right", "Lunar Haze");
-            Adv.KillUltra("solsticemoon", "r2", "Right", "Shackled Fairy");
-            Core.Jump("r3", "Right");
-            Adv.KillUltra("solsticemoon", "r3", "Right", "Hollow Midnight");
-            Core.EnsureComplete(9303);
-            Bot.Wait.ForPickup("Sliver of Moonlight");
-        }
-
-        //Dawn Breaks (Daily Bonus) - Sliver of Sunlight
-        if (Daily.CheckDaily(9304))
-        {
-            if (Army.isPartyLeader())
-                Core.SendPackets($"%xt%zm%dungeonQueue%{Bot.Map.RoomID}%midnightsun%");
-            Core.EnsureAccept(9304);
-            Adv.KillUltra("midnightsun", "Enter", "Spawn", "Dying Light");
-            Adv.KillUltra("midnightsun", "Enter", "Spawn", "Shining Star");
-            Core.Jump("r1", "Left");
-            Adv.KillUltra("midnightsun", "r1", "Left", "Dawn Knight");
-            Adv.KillUltra("midnightsun", "r1", "Left", "Shining Star");
-            Core.Jump("r2", "Right");
-            Adv.KillUltra("midnightsun", "r2", "Right", "Dawn Knight");
-            Adv.KillUltra("midnightsun", "r2", "Right", "Dying Light");
-            Core.Jump("r3", "Left");
-            Adv.KillUltra("midnightsun", "r3", "Left", "Hollow Solstice");
-            Core.EnsureComplete(9304);
-            Bot.Wait.ForPickup("Sliver of Sunlight");
-        }
-
         if (!Core.CheckInventory("Rite of Ascension"));
             Core.BuyItem("templeshrine", 2303, "Rite of Ascension");
 
@@ -120,37 +82,23 @@ public class TempleShrineDaily
         {
             Core.EnsureAccept(9305);
 
-            // Core.Join("ascendeclipse");
-            if (Army.isPartyLeader())
-                Core.SendPackets($"%xt%zm%dungeonQueue%{Bot.Map.RoomID}%ascendeclipse%");
-
             // Army.waitForParty("ascendeclipse");
             Core.Equip(new[] {"Potent Revitalize Elixir", "Scroll of Enrage"});
             // if (Bot.Player.Username == players[0] || Bot.Player.Username == players[2]) // LR and loo whenever its up
             Ultra.SkillsConfig(true);
 
-            // doing dungeon without party makes them attack fast
-            KillUltrav2("ascendeclipse", "Enter", "Spawn", "Fallen Star");
-            KillUltrav2("ascendeclipse", "Enter", "Spawn", "Blessless Deer");
-
-            Core.Jump("r1", "Left");
-            KillUltrav2("ascendeclipse", "r1", "Left", "Suffocated Light");
-            KillUltrav2("ascendeclipse", "r1", "Left", "Imprisoned Fairy");
-
-            Core.Jump("r2", "Left");
-            KillUltrav2("ascendeclipse", "r2", "Left", "Moon Haze");
-            KillUltrav2("ascendeclipse", "r2", "Left", "Sunset Knight");
-
             Core.Jump("r3", "Left");
             Ultra.SkillsConfig(); // Turn off taunt spam for the listeners
             if (Bot.Player.Username == players[0] || Bot.Player.Username == players[2]) // LR and loo
-            {
                 start = true;
+            if (Bot.Player.Username == players[0] || Bot.Player.Username == players[3]) // LR and dps
+            {
                 Bot.Events.ExtensionPacketReceived += SunListener;
                 KillUltrav2("ascendeclipse", "r3", "Left", "Ascended Solstice");
             }
             else
-                Bot.Events.ExtensionPacketReceived += MoonListener;   
+                Bot.Events.ExtensionPacketReceived += MoonListener;
+            Core.Sleep();
             KillUltrav2("ascendeclipse", "r3", "Left", "Ascended Midnight");
             // Bot.Target.GetAura("Focus").SecondsRemaining() < 2
 
@@ -159,12 +107,13 @@ public class TempleShrineDaily
         }
 
         // Unsub to all listeners
-        Core.ActivateDungeonMonsterListener(false);
+        // Core.ActivateDungeonMonsterListener(false);
         Bot.Events.ExtensionPacketReceived -= Army.PartyManagement;
         if (Bot.Player.Username == players[0] || Bot.Player.Username == players[2]) // LR and loo
             Bot.Events.ExtensionPacketReceived -= SunListener;
         else
             Bot.Events.ExtensionPacketReceived -= MoonListener;
+
 
         async void SunListener(dynamic packet)
         {
@@ -176,22 +125,20 @@ public class TempleShrineDaily
                 switch (cmd)
                 {
                     case "ct":
-                        if (data.anims is not null)
+                        dynamic anims = data.anims?[0]!;
+                        if (anims is not null)
                         {
-                            foreach (var a in data.anims)
-                            {
-                                string msg = a["msg"];
-                                if (msg is not null && msg.Contains("sun converges")){
-                                    if (start)
-                                    {
-                                        Core.Logger($"{msg}");
-                                        Bot.Sleep(1000);
-                                        Bot.Skills.UseSkill(5);
-                                    }
-                                    else
-                                        Core.Logger("Not my turn");
-                                    start = !start;
+                            string msg = anims["msg"];
+                            if (msg is not null && msg.Contains("sun converges")){
+                                if (start)
+                                {
+                                    Core.Logger($"{msg}");
+                                    Bot.Sleep(1000);
+                                    Bot.Skills.UseSkill(5);
                                 }
+                                else
+                                    Core.Logger("Not my turn");
+                                start = !start;
                             }
                         }
                         break;
@@ -208,22 +155,20 @@ public class TempleShrineDaily
                 switch (cmd)
                 {
                     case "ct":
-                        if (data.anims is not null)
+                        dynamic anims = data.anims?[0]!;
+                        if (anims is not null)
                         {
-                            foreach (var a in data.anims)
-                            {
-                                string msg = a["msg"];
-                                if (msg is not null && msg.Contains("moon converges")){
-                                    if (start)
-                                    {
-                                        Core.Logger($"{msg}");
-                                        Bot.Sleep(1000);
-                                        Bot.Skills.UseSkill(5);
-                                    }
-                                    else
-                                        Core.Logger("Not my turn");
-                                    start = !start;
+                            string msg = anims["msg"];
+                            if (msg is not null && msg.Contains("moon converges")){
+                                if (start)
+                                {
+                                    Core.Logger($"{msg}");
+                                    Bot.Sleep(1000);
+                                    Bot.Skills.UseSkill(5);
                                 }
+                                else
+                                    Core.Logger("Not my turn");
+                                start = !start;
                             }
                         }
                         break;
@@ -284,12 +229,12 @@ public class TempleShrineDaily
         else if (Bot.Player.Username == players[3])
         {
             // Healer gear
-            Core.Equip("Dragon of Time");
+            // Core.Equip("Dragon of Time");
             // Core.Equip("Awescended Omni Cowl");
             // Core.Equip("Category Five Hurricane Cloud");
             // Core.Equip("Exalted Apotheosis");
 
-            // Core.Equip("Chaos Avenger");
+            Core.Equip("Chaos Avenger");
             // Bot.Skills.StartAdvanced("4 | 3 | 1 | 2");
         }
         Ultra.SkillsConfig();

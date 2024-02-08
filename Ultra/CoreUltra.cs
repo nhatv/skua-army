@@ -59,13 +59,17 @@ public class CoreUltra
                 skillString = "3H>50S | 4 | 2 | 1H>30S | 3H>50S | 2 | 1H>30S | 3H>50S | 2 | 1H>30S";
                 break;
             case "ArchPaladin":
-                skillString = "3 | 1 | 2 | 1 | 2 | 4 | 1";
+                // skillString = "3 | 1 | 2 | 1 | 2 | 4 | 1";
+                skillString = "3 | 1 | 2";
                 break;
             case "Lord Of Order":
                 skillString = "2 | 4 | 1 | 3";
                 break;
             case "StoneCrusher":
                 skillString = "2 | 3 | 1 | 4";
+                break;
+            case "Legion Revenant":
+                skillString = "3 | 4 | 1 | 2";
                 break;
 
             default:
