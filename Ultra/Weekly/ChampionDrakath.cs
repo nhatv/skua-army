@@ -69,7 +69,7 @@ public class ChampionDrakath
         string[] players = Army.Players();
         if (Bot.Player.Username == players[0])
         {
-            Core.Equip(new[]{ "Void Highlord", "Potent Revitalize Elixir", "Scroll of Enrage" });
+            Core.Equip(new[]{ Bot.Config.Get<string>("player1Class"), "Potent Revitalize Elixir", "Scroll of Enrage" });
         } 
         else if (Bot.Player.Username == players[1])
         {
@@ -104,8 +104,8 @@ public class ChampionDrakath
             if (Bot.Player.Username == players[0])
             {
                 monster = Bot.Monsters.CurrentMonsters?.Find(m => m.MapID == 1);
-                // if (monster == null) // Probably death occurred
-                //     continue;
+                // threshold makes it slow for some reason??
+                // need to test again
                 if ((monster.HP <= (18000000 + threshold) && monster.HP >= 18000000) || 
                     (monster.HP <= (16000000 + threshold) && monster.HP >= 16000000) || 
                     (monster.HP <= (14000000 + threshold) && monster.HP >= 14000000) || 
@@ -120,8 +120,11 @@ public class ChampionDrakath
                     {
                         Bot.Skills.StartAdvanced("5");
                     }
-                    Bot.Skills.StartAdvanced("3H>50S | 4 | 2 | 1H>30S | 3H>50S | 2 | 1H>30S | 3H>50S | 2 | 1H>30S");
+                    Bot.Skills.StartAdvanced("4S | 3S | 1S | 2S");
+                    // Bot.Skills.StartAdvanced("5");
                 }
+                // else
+                //     Bot.Skills.StartAdvanced("4S | 3S | 1S | 2S");
                 
             }
             

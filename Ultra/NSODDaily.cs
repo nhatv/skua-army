@@ -55,7 +55,7 @@ public class NSoDDaily
 
         Core.AddDrop("Glacial Pinion", "Hydra Eyeball", "Flibbitigiblets", "Void Aura");
 
-        Core.EnsureAccept(9091); // Originul daily
+        // Core.EnsureAccept(9091); // Originul daily
         Core.EnsureAccept(8653);
         // Core.RegisterQuests(9091, 8653);
 
@@ -86,7 +86,7 @@ public class NSoDDaily
 
         Core.JumpWait();
         Army.waitForParty("hydrachallenge", "Flibbitigiblets");
-        Core.Equip("Void Highlord");
+        Core.Equip("Chaos Avenger");
         
         // while (!Bot.ShouldExit && !Core.CheckInventory("Flibbitigiblets"))
         // {
@@ -120,10 +120,10 @@ public class NSoDDaily
         }
         else if (Bot.Player.Username == players[3])
         {
-            // Core.Equip("StoneCrusher");
-            // Bot.Skills.StartAdvanced("3S | 2S | 1 | 4");
-            Core.Equip("Chaos Avenger");
-            Bot.Skills.StartAdvanced("4 | 3 | 1 | 2");
+            Core.Equip("StoneCrusher");
+            Bot.Skills.StartAdvanced("3S | 2S | 1 | 4");
+            // Core.Equip("Chaos Avenger");
+            // Bot.Skills.StartAdvanced("4 | 3 | 1 | 2");
         }
     }
 

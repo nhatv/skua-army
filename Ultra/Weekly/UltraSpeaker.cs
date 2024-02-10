@@ -74,6 +74,7 @@ public class UltraSpeaker
         else if (Bot.Player.Username == players[1])
         {
             Core.Equip("ArchPaladin");
+            Core.Equip("Necrotic Sword of the Abyss"); // lacerate
             Core.Equip("Potent Revitalize Elixir");
             Core.Equip("Scroll of Enrage");
             Bot.Skills.StartAdvanced("3 | 1 | 5S | 2");
@@ -96,11 +97,13 @@ public class UltraSpeaker
             // Core.Equip("Stonecrusher");
             // Core.Equip("Scroll of Enrage");
             // Bot.Skills.StartAdvanced("5S | 2 | 3 | 1 | 4", 250, SkillUseMode.UseIfAvailable);
-            Core.Equip("Verus DoomKnight");
-            Core.Equip("Sin of the Abyss");
+            // Core.Equip("Chaos Avenger");
+            Core.Equip("Void Highlord");
+            // Core.Equip("Sin of the Abyss");
             Core.Equip("Potent Revitalize Elixir");
             Core.Equip("Scroll of Enrage");
-            Bot.Skills.StartAdvanced("5S | 1 | 2 | 3 | 1 | 2 | 5S | 4 | 3 | 2 | 1 | 3 | 2 | 5S | 4");
+            Bot.Skills.StartAdvanced("5S | 4 | 3 | 1 | 2");
+            // Bot.Skills.StartAdvanced("5S | 1 | 2 | 3 | 1 | 2 | 5S | 4 | 3 | 2 | 1 | 3 | 2 | 5S | 4");
         }
         Core.Equip("Cape of Awe"); // Penitence Cape
 
@@ -114,7 +117,7 @@ public class UltraSpeaker
         while (!Bot.ShouldExit && !Core.CheckInventory("The First Speaker Silenced"))
         {
             // Walk top left
-            Bot.Flash.Call("walkTo", 5, 231, 10); // x, y, speed
+            Bot.Flash.Call("walkTo", 63, 325, 10); // x, y, speed
             Bot.Combat.Attack("The First Speaker");
             Bot.Sleep(2000);
         }

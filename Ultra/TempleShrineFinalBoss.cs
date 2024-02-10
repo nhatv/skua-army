@@ -90,14 +90,14 @@ public class TempleShrineFinalBoss
             Core.Jump("r3", "Left");
             Ultra.SkillsConfig(); // Turn off taunt spam for the listeners
             if (Bot.Player.Username == players[0] || Bot.Player.Username == players[2]) // LR and loo
-                start = true;
+                Core.Sleep(7000);
             if (Bot.Player.Username == players[0] || Bot.Player.Username == players[3]) // LR and dps
             {
-                Bot.Events.ExtensionPacketReceived += SunListener;
+                // Bot.Events.ExtensionPacketReceived += SunListener;
                 KillUltrav2("ascendeclipse", "r3", "Left", "Ascended Solstice");
             }
-            else
-                Bot.Events.ExtensionPacketReceived += MoonListener;
+            // else
+                // Bot.Events.ExtensionPacketReceived += MoonListener;
             Core.Sleep();
             KillUltrav2("ascendeclipse", "r3", "Left", "Ascended Midnight");
             // Bot.Target.GetAura("Focus").SecondsRemaining() < 2
@@ -133,7 +133,7 @@ public class TempleShrineFinalBoss
                                 if (start)
                                 {
                                     Core.Logger($"{msg}");
-                                    Bot.Sleep(1000);
+                                    Bot.Sleep(800);
                                     Bot.Skills.UseSkill(5);
                                 }
                                 else
@@ -163,7 +163,7 @@ public class TempleShrineFinalBoss
                                 if (start)
                                 {
                                     Core.Logger($"{msg}");
-                                    Bot.Sleep(1000);
+                                    Bot.Sleep(800);
                                     Bot.Skills.UseSkill(5);
                                 }
                                 else
